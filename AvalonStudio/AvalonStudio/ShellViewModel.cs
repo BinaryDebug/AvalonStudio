@@ -94,7 +94,8 @@ namespace AvalonStudio
             _toolBarItemGroupDefinitions = new List<ToolBarItemGroupDefinition>();
             _toolBarItemDefinitions = new List<ToolBarItemDefinition>();
 
-            IoC.RegisterConstant(this, typeof(IShell));
+            IoC.RegisterConstant<IShell>(this);
+            IoC.RegisterConstant(this);
 
             foreach (var extension in extensions)
             {
@@ -437,7 +438,7 @@ namespace AvalonStudio
 
             if (document is EditorViewModel doc)
             {
-                doc.Save();
+                doc.Save();                
             }
 
             if (DocumentTabs.TemporaryDocument == document)
