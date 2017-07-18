@@ -481,6 +481,8 @@ namespace AvalonStudio
                 if (DocumentTabs.TemporaryDocument != null)
                 {
                     documentToClose = DocumentTabs.TemporaryDocument;
+
+                    await documentToClose.CloseCommand.ExecuteAsyncTask(null);
                 }
 
                 EditorViewModel newEditor = null;
