@@ -463,7 +463,7 @@ namespace AvalonStudio
             DocumentTabs.InvalidateSeperatorVisibility();
         }
 
-        public IEditor OpenDocument(ISourceFile file, int line, int startColumn = -1, int endColumn = -1, bool debugHighlight = false, bool selectLine = false)
+        public async Task<IEditor> OpenDocument(ISourceFile file, int line, int startColumn = -1, int endColumn = -1, bool debugHighlight = false, bool selectLine = false, bool focus = true)
         {
             bool restoreFromCache = false;
 
@@ -516,19 +516,24 @@ namespace AvalonStudio
                 DocumentTabs.SelectedDocument = currentTab;
             }
 
-            if (DocumentTabs.SelectedDocument is IEditor)
+            if (DocumentTabs.SelectedDocument is IEditor editor)
             {
                 // ensures that the document has been opened and created.
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     if (debugHighlight)
                     {
-                        (DocumentTabs.SelectedDocument as IEditor).SetDebugHighlight(line, startColumn, endColumn);
+                        editor.SetDebugHighlight(line, startColumn, endColumn);
                     }
 
                     if (selectLine || debugHighlight)
                     {
-                        (DocumentTabs.SelectedDocument as IEditor).GotoPosition(line, startColumn != -1 ? 1 : startColumn);
+                        editor.GotoPosition(line, startColumn != -1 ? 1 : startColumn);
+                    }
+
+                    if (focus)
+                    {
+                        editor.Focus();
                     }
 
                     if (documentToClose != null)
