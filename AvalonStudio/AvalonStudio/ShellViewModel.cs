@@ -165,7 +165,7 @@ namespace AvalonStudio
                 menuItemDefinition.Activation();
             }
 
-            foreach (var menuItemDefinition in _menuItemGroupDefinitions)
+            foreach (var menuItemAsReadOnlyDefinition in _menuItemGroupDefinitions)
             {
                 menuItemDefinition.Activation();
             }
@@ -443,7 +443,7 @@ namespace AvalonStudio
 
             if (document is EditorViewModel doc)
             {
-                doc.Save();                
+                doc.Save();
             }
 
             if (DocumentTabs.TemporaryDocument == document)
