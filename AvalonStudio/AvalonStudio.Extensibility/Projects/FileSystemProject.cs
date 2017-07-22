@@ -340,7 +340,7 @@
             {
                 action();
             }
-        }        
+        }
 
         [JsonIgnore]
         public IList<ISourceFile> SourceFiles { get; private set; }
