@@ -167,7 +167,7 @@ namespace AvalonStudio
 
             foreach (var menuItemAsReadOnlyDefinition in _menuItemGroupDefinitions)
             {
-                menuItemDefinition.Activation();
+                menuItemAsReadOnlyDefinition.Activation();
             }
 
             foreach (var extension in _menuItemDefinitions)
