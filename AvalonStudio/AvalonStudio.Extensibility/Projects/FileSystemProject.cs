@@ -343,7 +343,7 @@
         }
 
         [JsonIgnore]
-        public IList<ISourceFile> SourceFiles { get; private set; }
+        public List<ISourceFile> SourceFiles { get; private set; }
 
         [JsonIgnore]
         public IList<IProjectFolder> Folders { get; private set; }
