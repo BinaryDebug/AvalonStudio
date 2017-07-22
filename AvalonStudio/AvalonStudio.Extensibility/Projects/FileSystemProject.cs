@@ -396,7 +396,7 @@
 
         public abstract dynamic ToolchainSettings { get; set; }
 
-        IReadOnlyList<ISourceFile> IProject.SourceFiles => new ReadOnlyCollection<ISourceFile>(SourceFiles);
+        IReadOnlyList<ISourceFile> IProject.SourceFiles => SourceFiles.AsReadOnly();
 
         public event EventHandler FileAdded;
 
