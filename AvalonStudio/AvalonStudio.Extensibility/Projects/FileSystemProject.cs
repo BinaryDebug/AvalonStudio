@@ -340,7 +340,7 @@
             {
                 action();
             }
-        }
+        }        
 
         [JsonIgnore]
         public IList<ISourceFile> SourceFiles { get; private set; }
@@ -395,6 +395,8 @@
         }
 
         public abstract dynamic ToolchainSettings { get; set; }
+
+        IReadOnlyList<ISourceFile> IProject.SourceFiles => new ReadOnlyCollection<ISourceFile>(SourceFiles);
 
         public event EventHandler FileAdded;
 
