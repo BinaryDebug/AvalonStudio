@@ -6,25 +6,70 @@ namespace AvalonStudio.Extensibility.Tests
 {
     public class FuzzyMatchTests
     {
-        void runtest(string query, string str, bool match, int expected_score, string expected_matches)
+        private void RunTest(string query, string str, bool match, int expected_score, string expected_matches)
         {
-            int score = 0;
-            string format;
-            /*bool retmatch = FuzzyMatch.fuzzy_match(pattern, str, out score, out format);
-
-            Assert.Equal(match, retmatch);
-            if (retmatch)
-            {
-                Assert.Equal(expected_score, score);
-            }
-            Assert.Equal(expected_matches, format);*/
-
             var res = FuzzyMatch.StringMatch(str, query, null);
+            if (res != null)
+            {
+                Assert.Equal(expected_score, res.matchQuality);
+            }
 
-            // order of what? matchQuality
+            if(res == null)
+            {
+                Assert.Equal(0, expected_score);
+                return;
+            }
 
-           // 2 things ... i need to reverse the order of results, the lower the number the better.
-           // Also the range of chars matched is now a list of indexes into the string...
+            List<int> matches = new List<int>();
+
+            bool inMatch = false;
+            for (int actual_index = 0, i = 0; i < expected_matches.Length; i++)
+            {
+                if ("{}".Contains(expected_matches[i].ToString()))
+                {
+                    switch (expected_matches[i])
+                    {
+                        case '{':
+                            inMatch = true;
+                            continue;
+
+                        case '}':
+                            inMatch = false;
+                            continue;
+
+                        default:
+                            break;
+                    }
+                }
+
+                if (inMatch)
+                {
+                    matches.Add(actual_index);
+                }
+
+                actual_index++;
+            }
+
+            int section_index = 0;
+            foreach (var range in res.stringRanges)
+            {
+
+                for (int i = 0; i < range.text.Length; i++)
+                {
+                    if (range.matched)
+                    {
+                        Assert.True(matches.Contains(section_index + i));
+                    }
+                    else
+                    {
+                        Assert.False(matches.Contains(section_index + i));
+                    }
+                }
+
+
+                section_index += range.text.Length;
+            }
+
         }
 
         void CheckFSC(string test, List<int> specials, int lastSegmentSpecialIndex)
@@ -34,7 +79,7 @@ namespace AvalonStudio.Extensibility.Tests
             Assert.Equal(specials.Count, res.specials.Count);
 
             int i;
-            for(i = 0; i < specials.Count; i++)
+            for (i = 0; i < specials.Count; i++)
             {
                 Assert.Equal(specials[i], res.specials[i]);
             }
@@ -46,7 +91,7 @@ namespace AvalonStudio.Extensibility.Tests
         private void find_special_chars_0()
         {
             string test = "src/document/DocumentCommandHandler.js";
-            List<int> specials = new List<int> { 0, 3, 4, 12, 13, 21, 28, 35, 36};
+            List<int> specials = new List<int> { 0, 3, 4, 12, 13, 21, 28, 35, 36 };
             CheckFSC(test, specials, 4);
         }
 
@@ -54,7 +99,7 @@ namespace AvalonStudio.Extensibility.Tests
         private void find_special_chars_1()
         {
             string test = "foobar.js";
-            List<int> specials = new List<int> { 0, 6, 7};
+            List<int> specials = new List<int> { 0, 6, 7 };
             CheckFSC(test, specials, 0);
         }
 
@@ -88,37 +133,37 @@ namespace AvalonStudio.Extensibility.Tests
         [Fact]
         private void test_bug_0()
         {
-            runtest("ma", "Startup\\startup_stm32f410tx.c", false, 0, "");
+            RunTest("ma", "Startup\\startup_stm32f410tx.c", false, 0, "");
         }
 
         [Fact]
         private void test_bug_1()
         {
-            runtest("ma", "Lib\\GCC\\libarm_cortexM4l_math.a", true, 0, "");
+            RunTest("ma", "Lib\\GCC\\libarm_cortexM4l_math.a", true, -129, "Lib\\GCC\\libarm_cortex{M}4l_math.{a}");
         }
 
-        [Fact]        
+        [Fact]
         private void test_test_match_25()
         {
-            runtest("test", "test", true, 25, "{test}");
+            RunTest("test", "test", true, -379, "{test}");
         }
 
         [Fact]
         private void test_tes_match()
         {
-            runtest("tes", "test", true, 19, "{tes}t");
+            RunTest("tes", "test", true, -279, "{tes}t");
         }
 
         [Fact]
         private void test_sets_nomatch()
         {
-            runtest("sets", "test", false, 0, "te{s}t");
+            RunTest("sets", "test", false, 0, "");
         }
 
         [Fact]
         private void test_tt_match()
         {
-            runtest("tt", "test", true, 8, "{t}es{t}");
+            RunTest("tt", "test", true, -134, "{t}es{t}");
         }
 
         [Fact]
@@ -135,11 +180,11 @@ namespace AvalonStudio.Extensibility.Tests
             var lastScore = int.MinValue;
             var goodOrdering = true;
 
-            foreach(var str in testStrings)
+            foreach (var str in testStrings)
             {
                 var result = FuzzyMatch.StringMatch(str, query);
 
-                if(result.matchQuality < lastScore)
+                if (result.matchQuality < lastScore)
                 {
                     goodOrdering = false;
                 }
@@ -196,7 +241,7 @@ namespace AvalonStudio.Extensibility.Tests
             }));
 
             Assert.Equal(true, goodRelativeOrdering("ECH", new List<string>
-            {    
+            {
                 "EditorCommandHandlers",
                     "EditorCommandHandlers-test",
                     "SpecHelper"
